@@ -1,68 +1,85 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { v4 } from 'uuid';
-
-type User = {
-  id: string;
-  login: string;
-  password: string;
-  age: number;
-  isDeleted: boolean;
-};
-
-const Users: User[] = [];
+import { users } from './entities/user.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectModel(users)
+    private userModel: typeof users,
+  ) {}
+
   create(createUserDto: CreateUserDto) {
-    const newUser = {
-      ...createUserDto,
-      id: v4(),
-      isDeleted: false,
-    };
-    Users.push(newUser);
-    return newUser;
+    return users
+      .create({
+        login: createUserDto.login,
+        password: createUserDto.password,
+        age: createUserDto.age,
+      })
+      .then((user) => {
+        return { login: user.login, age: user.age, id: user.id };
+      });
   }
 
-  async findAll() {
-    return Users.filter((user) => user.isDeleted === false);
+  findAll() {
+    return this.userModel.findAll({
+      attributes: { exclude: ['password', 'isdeleted'] },
+      where: {
+        isdeleted: false,
+      },
+    });
   }
 
   findOne(id: string) {
-    return Users.find((user) => user.id === id && !user.isDeleted);
+    return this.userModel.findOne({
+      attributes: { exclude: ['password', 'isdeleted'] },
+      where: {
+        id,
+        isdeleted: false,
+      },
+    });
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    const userIndex = Users.findIndex((user) => user.id === id);
-    Users[userIndex] = { ...Users[userIndex], ...updateUserDto };
-    return Users[userIndex];
+    return this.userModel.update(updateUserDto, {
+      where: {
+        id,
+      },
+    });
   }
 
   remove(id: string) {
-    const user = Users.find((user) => user.id === id && !user.isDeleted);
-    if (user) {
-      user.isDeleted = true;
-      return 'User has been deleted';
-    }
-
-    return null;
+    return this.userModel.update(
+      { isdeleted: true },
+      {
+        where: {
+          id,
+          isdeleted: false,
+        },
+      },
+    );
   }
 
   getSuggested(loginSubstring: string, limit: number) {
-    const suggested = Users.filter((user) =>
-      user.login.includes(loginSubstring),
-    ).sort((a, b) => {
-      if (a.login > b.login) {
-        return 1;
-      } else if (a.login < b.login) {
-        return -1;
-      } else {
-        return 0;
-      }
-    });
-    const limited =
-      limit >= suggested.length ? suggested : suggested.slice(0, limit);
-    return limited;
+    return this.userModel
+      .findAll({
+        where: {
+          isdeleted: false,
+          login: {
+            [Op.substring]: loginSubstring,
+          },
+        },
+        order: [['login', 'ASC']],
+        limit,
+      })
+      .then((userArray) =>
+        userArray.map((user) => {
+          return { login: user.login, age: user.age, id: user.id };
+        }),
+      );
   }
 }
