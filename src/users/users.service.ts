@@ -3,14 +3,20 @@ import { InjectModel } from '@nestjs/sequelize';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { users } from './entities/user.entity';
-import { Op } from 'sequelize';
+import { users, user_groups } from './entities/user.entity';
+import { groups } from '../groups/entities/group.entity';
+import { Op, Sequelize } from 'sequelize';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(users)
     private userModel: typeof users,
+    @InjectModel(user_groups)
+    private userGroupsModel: typeof user_groups,
+    @InjectModel(groups)
+    private groupsModel: typeof groups,
+    private sequelize: Sequelize,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -52,16 +58,38 @@ export class UsersService {
     });
   }
 
-  remove(id: string) {
-    return this.userModel.update(
-      { isdeleted: true },
-      {
+  async remove(id: string) {
+    const t = await this.sequelize.transaction();
+    try {
+      await this.userModel.update(
+        { isdeleted: true },
+        {
+          where: {
+            id,
+            isdeleted: false,
+          },
+          transaction: t,
+        },
+      );
+
+      await this.userModel.destroy({
         where: {
           id,
-          isdeleted: false,
         },
-      },
-    );
+        transaction: t,
+      });
+
+      await this.userGroupsModel.destroy({
+        where: {
+          user_id: id,
+        },
+        transaction: t,
+      });
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+      return error;
+    }
   }
 
   getSuggested(loginSubstring: string, limit: number) {
@@ -81,5 +109,37 @@ export class UsersService {
           return { login: user.login, age: user.age, id: user.id };
         }),
       );
+  }
+
+  async addUserToGroup(addUserToGroup: any) {
+    const login = addUserToGroup.userLogin;
+    const name = addUserToGroup.groupName;
+    const t = await this.sequelize.transaction();
+    try {
+      const userRes = await this.userModel.findOne({
+        where: {
+          login,
+        },
+        transaction: t,
+      });
+
+      const groupRes = await this.groupsModel.findOne({
+        where: {
+          name,
+        },
+        transaction: t,
+      });
+
+      await this.userGroupsModel.create({
+        user_id: userRes.getDataValue('id'),
+        group_id: groupRes.getDataValue('id'),
+      });
+      t.commit();
+      return true;
+    } catch (error) {
+      t.rollback();
+      console.log(error.message);
+      return error;
+    }
   }
 }

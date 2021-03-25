@@ -5,7 +5,7 @@ import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({
-    description: 'The age of a cat',
+    description: 'The login',
     default: 'user@user.com',
     required: false,
   })
