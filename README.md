@@ -2,16 +2,20 @@ lounch application script: npm run start
 
 API - localhost:3000
 
-Task 3.1 done
+Task 4.1 done
 
-- database created with AWS RDS
-- all methods rewrited to work with database
-- sequilaze ORM was used
-- some infofmation (password and isDisabled flag) was excluded from responses
+- get group by id
+- get all groups
+- create and update groups
+- remove group
+- data stored in Groups table
 
-Task 3.2 done
-Nest gives it's own structure for project
-routes - service
-controller - controllerd
-data-access - implemented with module
-model - implemented with entity
+
+Task 4.2 done
+- create user_group table, permissions table, group_permissions tables, ad many-to-many
+- if record removed all linked data removes too
+
+Task 4.3 done
+- add addUserToGroup method
+
+
