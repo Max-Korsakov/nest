@@ -34,11 +34,7 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const user = this.usersService.findOne(id);
-    if (user === undefined) {
-      throw new BadRequestException('Invalid id');
-    }
-    return user;
+    return this.usersService.findOne(id);
   }
 
   @Get()
@@ -48,15 +44,7 @@ export class UsersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = this.usersService.findOne(id);
-    if (user === undefined) {
-      throw new NotFoundException('Invalid id');
-    }
-    const updatedUser = this.usersService.update(id, updateUserDto);
-    if (updatedUser === undefined) {
-      throw new InternalServerErrorException('Update faled');
-    }
-    return updatedUser;
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
