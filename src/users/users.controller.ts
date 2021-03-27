@@ -49,11 +49,7 @@ export class UsersController {
   @ApiOkResponse({ description: 'User received' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
   findOne(@Param('id') id: string) {
-    const user = this.usersService.findOne(id);
-    if (user === undefined) {
-      throw new BadRequestException('Invalid id');
-    }
-    return user;
+    return this.usersService.findOne(id);
   }
 
   @Get()
@@ -68,10 +64,6 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'Invalid id' })
   @ApiInternalServerErrorResponse({ description: 'Update failed' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = this.usersService.findOne(id);
-    if (user === undefined) {
-      throw new NotFoundException('Invalid id');
-    }
     const updatedUser = this.usersService.update(id, updateUserDto);
     if (updatedUser === undefined) {
       throw new InternalServerErrorException('Update failed');

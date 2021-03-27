@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreatedUserRes } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { users } from './entities/user.entity';
 import { Op } from 'sequelize';
@@ -13,7 +13,7 @@ export class UsersService {
     private userModel: typeof users,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  create(createUserDto: CreateUserDto): Promise<CreatedUserRes> {
     return users
       .create({
         login: createUserDto.login,
@@ -25,7 +25,7 @@ export class UsersService {
       });
   }
 
-  findAll() {
+  findAll(): Promise<CreatedUserRes[]> {
     return this.userModel.findAll({
       attributes: { exclude: ['password', 'isdeleted'] },
       where: {
@@ -34,7 +34,7 @@ export class UsersService {
     });
   }
 
-  findOne(id: string) {
+  findOne(id: string): Promise<CreatedUserRes> {
     return this.userModel.findOne({
       attributes: { exclude: ['password', 'isdeleted'] },
       where: {
@@ -44,7 +44,10 @@ export class UsersService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
+  update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<[number, CreatedUserRes[]]> {
     return this.userModel.update(updateUserDto, {
       where: {
         id,
@@ -52,7 +55,7 @@ export class UsersService {
     });
   }
 
-  remove(id: string) {
+  remove(id: string): Promise<[number, CreatedUserRes[]]> {
     return this.userModel.update(
       { isdeleted: true },
       {
@@ -64,7 +67,10 @@ export class UsersService {
     );
   }
 
-  getSuggested(loginSubstring: string, limit: number) {
+  getSuggested(
+    loginSubstring: string,
+    limit: number,
+  ): Promise<CreatedUserRes[]> {
     return this.userModel
       .findAll({
         where: {
