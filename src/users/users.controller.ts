@@ -64,21 +64,13 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'Invalid id' })
   @ApiInternalServerErrorResponse({ description: 'Update failed' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const updatedUser = this.usersService.update(id, updateUserDto);
-    if (updatedUser === undefined) {
-      throw new InternalServerErrorException('Update failed');
-    }
-    return updatedUser;
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ description: 'User deleted' })
   @ApiNotFoundResponse({ description: 'Invalid id' })
   remove(@Param('id') id: string) {
-    const isDeleted = this.usersService.remove(id);
-    if (!isDeleted) {
-      throw new NotFoundException('Invalid id');
-    }
-    return isDeleted;
+    return this.usersService.remove(id);
   }
 }
