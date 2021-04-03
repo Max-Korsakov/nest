@@ -49,10 +49,6 @@ export class UsersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    const isDeleted = this.usersService.remove(id);
-    if (!isDeleted) {
-      throw new NotFoundException('Invalid id');
-    }
-    return isDeleted;
+    return this.usersService.remove(id);
   }
 }
