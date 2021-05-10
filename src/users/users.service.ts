@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreatedUserRes } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { users, user_groups } from './entities/user.entity';
 import { groups } from '../groups/entities/group.entity';
@@ -19,7 +19,7 @@ export class UsersService {
     private sequelize: Sequelize,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  create(createUserDto: CreateUserDto): Promise<CreatedUserRes> {
     return users
       .create({
         login: createUserDto.login,
@@ -31,7 +31,7 @@ export class UsersService {
       });
   }
 
-  findAll() {
+  findAll(): Promise<CreatedUserRes[]> {
     return this.userModel.findAll({
       attributes: { exclude: ['password', 'isdeleted'] },
       where: {
@@ -40,7 +40,7 @@ export class UsersService {
     });
   }
 
-  findOne(id: string) {
+  findOne(id: string): Promise<CreatedUserRes> {
     return this.userModel.findOne({
       attributes: { exclude: ['password', 'isdeleted'] },
       where: {
@@ -50,7 +50,10 @@ export class UsersService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
+  update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<[number, CreatedUserRes[]]> {
     return this.userModel.update(updateUserDto, {
       where: {
         id,
@@ -58,7 +61,7 @@ export class UsersService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<[number, CreatedUserRes[]]> {
     const t = await this.sequelize.transaction();
     try {
       await this.userModel.update(
@@ -92,7 +95,10 @@ export class UsersService {
     }
   }
 
-  getSuggested(loginSubstring: string, limit: number) {
+  getSuggested(
+    loginSubstring: string,
+    limit: number,
+  ): Promise<CreatedUserRes[]> {
     return this.userModel
       .findAll({
         where: {
