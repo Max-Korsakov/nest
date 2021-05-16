@@ -12,6 +12,7 @@ import {
   permissions_groups,
   permissions,
 } from './permissions/entities/permissions.entity';
+import { LoggerModule } from './utils/loggers/common-logger/logger.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import {
       models: [users, user_groups, groups, permissions_groups, permissions],
     }),
     GroupsModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

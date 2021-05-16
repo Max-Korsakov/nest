@@ -27,8 +27,8 @@ export class permissions extends Model<any> {
 
 /*
  * Something wrong with that table
- * because it put unexpected uniqe constrains on the properties,
- * so we need to delete it maually
+ * because it put unexpected uniq constrains on the properties,
+ * so we need to delete it manually
  */
 
 @Table({ timestamps: false })
