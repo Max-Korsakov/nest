@@ -61,8 +61,8 @@ export class UsersService {
     });
   }
 
-  async remove(id: string): Promise<[number, CreatedUserRes[]]> {
-    const t = await this.sequelize.transaction();
+  async remove(id: string): Promise<number> {
+    const transaction = await this.sequelize.transaction();
     try {
       await this.userModel.update(
         { isdeleted: true },
@@ -71,27 +71,28 @@ export class UsersService {
             id,
             isdeleted: false,
           },
-          transaction: t,
+          transaction,
         },
       );
 
-      await this.userModel.destroy({
+      const result = await this.userModel.destroy({
         where: {
           id,
         },
-        transaction: t,
+        transaction,
       });
 
       await this.userGroupsModel.destroy({
         where: {
           user_id: id,
         },
-        transaction: t,
+        transaction,
       });
-      await t.commit();
+      await transaction.commit();
+      return result;
     } catch (error) {
-      await t.rollback();
-      return error;
+      await transaction.rollback();
+      throw error;
     }
   }
 
@@ -120,32 +121,32 @@ export class UsersService {
   async addUserToGroup(addUserToGroup: any) {
     const login = addUserToGroup.userLogin;
     const name = addUserToGroup.groupName;
-    const t = await this.sequelize.transaction();
+    const transaction = await this.sequelize.transaction();
     try {
       const userRes = await this.userModel.findOne({
         where: {
           login,
         },
-        transaction: t,
+        transaction,
       });
 
       const groupRes = await this.groupsModel.findOne({
         where: {
           name,
         },
-        transaction: t,
+        transaction,
       });
 
       await this.userGroupsModel.create({
         user_id: userRes.getDataValue('id'),
         group_id: groupRes.getDataValue('id'),
       });
-      t.commit();
+      transaction.commit();
       return true;
     } catch (error) {
-      t.rollback();
+      transaction.rollback();
       console.log(error.message);
-      return error;
+      throw error;
     }
   }
 }

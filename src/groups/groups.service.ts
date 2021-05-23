@@ -23,13 +23,13 @@ export class GroupsService {
   ) {}
 
   async create(createGroupDto: CreateGroupDto) {
-    const t = await this.sequelize.transaction();
+    const transaction = await this.sequelize.transaction();
     try {
       const group = await groups.create(
         {
           name: createGroupDto.name,
         },
-        { transaction: t },
+        { transaction },
       );
 
       await Promise.all(
@@ -38,23 +38,23 @@ export class GroupsService {
             where: {
               permission,
             },
-            transaction: t,
+            transaction,
           });
           await this.permissionsGroupsModel.create(
             {
               permissions_id: permissionData.getDataValue('id'),
               group_id: group.getDataValue('id'),
             },
-            { transaction: t },
+            { transaction },
           );
         }),
       );
-      await t.commit();
+      await transaction.commit();
       return group;
     } catch (error) {
-      await t.rollback();
+      await transaction.rollback();
       console.log(error.message);
-      return error;
+      throw error;
     }
   }
 
