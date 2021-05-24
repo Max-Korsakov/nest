@@ -122,7 +122,7 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<boolean> {
-    const t = await this.sequelize.transaction();
+    const transaction = await this.sequelize.transaction();
     this.logger.log(
       `Method: ${this.remove.name} was called with arguments:${JSON.stringify(
         arguments,
@@ -136,27 +136,27 @@ export class UsersService {
             id,
             isdeleted: false,
           },
-          transaction: t,
+          transaction,
         },
       );
 
-      await this.userModel.destroy({
+      const result = await this.userModel.destroy({
         where: {
           id,
         },
-        transaction: t,
+        transaction,
       });
 
       await this.userGroupsModel.destroy({
         where: {
           user_id: id,
         },
-        transaction: t,
+        transaction,
       });
-      await t.commit();
+      await transaction.commit();
       return true;
     } catch (error) {
-      await t.rollback();
+      await transaction.rollback();
       this.logger.error(
         `Method: ${this.update.name}, arguments:${JSON.stringify(
           arguments,
@@ -207,30 +207,30 @@ export class UsersService {
     );
     const login = addUserToGroup.userLogin;
     const name = addUserToGroup.groupName;
-    const t = await this.sequelize.transaction();
+    const transaction = await this.sequelize.transaction();
     try {
       const userRes = await this.userModel.findOne({
         where: {
           login,
         },
-        transaction: t,
+        transaction,
       });
 
       const groupRes = await this.groupsModel.findOne({
         where: {
           name,
         },
-        transaction: t,
+        transaction,
       });
 
       await this.userGroupsModel.create({
         user_id: userRes.getDataValue('id'),
         group_id: groupRes.getDataValue('id'),
       });
-      t.commit();
+      transaction.commit();
       return true;
     } catch (error) {
-      t.rollback();
+      transaction.rollback();
       this.logger.error(
         `Method: ${this.getSuggested.name}, arguments:${JSON.stringify(
           arguments,
