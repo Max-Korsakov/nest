@@ -4,16 +4,22 @@ import {
   Table,
   DataType,
   PrimaryKey,
-  Unique,
+  BelongsToMany,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { Exclude } from 'class-transformer';
 import Seq from 'sequelize';
+import { groups } from '../../groups/entities/group.entity';
 
-@Table({ timestamps: false })
-export class users extends Model {
+@Table({ paranoid: true })
+export class users extends Model<any> {
+  @BelongsToMany(() => groups, {
+    through: () => user_groups,
+    as: 'userId',
+    onDelete: 'CASCADE',
+  })
   @PrimaryKey
-  @Unique
-  @Column({ type: DataType.UUIDV4, defaultValue: Seq.UUIDV4 })
+  @Column({ type: DataType.STRING, defaultValue: Seq.UUIDV4 })
   id: string;
 
   @Column({ type: DataType.STRING, allowNull: false })
@@ -28,4 +34,15 @@ export class users extends Model {
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isdeleted: boolean;
+}
+
+@Table
+export class user_groups extends Model<any> {
+  @ForeignKey(() => users)
+  @Column
+  user_id: string;
+
+  @ForeignKey(() => groups)
+  @Column
+  group_id: string;
 }

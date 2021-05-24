@@ -5,7 +5,13 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { users } from './users/entities/user.entity';
+import { users, user_groups } from './users/entities/user.entity';
+import { groups } from './groups/entities/group.entity';
+import { GroupsModule } from './groups/groups.module';
+import {
+  permissions_groups,
+  permissions,
+} from './permissions/entities/permissions.entity';
 
 @Module({
   imports: [
@@ -18,8 +24,10 @@ import { users } from './users/entities/user.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      models: [users],
+      synchronize: true,
+      models: [users, user_groups, groups, permissions_groups, permissions],
     }),
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

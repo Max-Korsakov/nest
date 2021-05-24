@@ -22,6 +22,7 @@ import {
 
 import { UsersService } from './users.service';
 import { CreateUserDto, CreatedUserRes } from './dto/create-user.dto';
+import { AddUserToGroup } from './dto/add-to-group.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('users')
@@ -34,6 +35,16 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Validation error' })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('addgroup')
+  @ApiCreatedResponse({
+    description: 'Add user to group',
+    type: AddUserToGroup,
+  })
+  @ApiBadRequestResponse({ description: 'Validation error' })
+  addUserToGroup(@Body() addUserToGroup: AddUserToGroup) {
+    return this.usersService.addUserToGroup(addUserToGroup);
   }
 
   @Get('suggested')
