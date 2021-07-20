@@ -33,9 +33,8 @@ import { LogDecorator } from '../utils/loggers/time-logget/timelogger';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
   @ApiBearerAuth()
+  @Post()
   @ApiCreatedResponse({ description: 'User created', type: CreatedUserRes })
   @ApiBadRequestResponse({ description: 'Validation error' })
   @ApiBody({ type: [CreateUserDto] })
@@ -48,6 +47,7 @@ export class UsersController {
     return response.send(userData);
   }
 
+  @ApiBearerAuth()
   @Post('addgroup')
   @ApiCreatedResponse({
     description: 'Add user to group',
@@ -64,6 +64,7 @@ export class UsersController {
     return response.send(resp);
   }
 
+  @ApiBearerAuth()
   @Get('suggested')
   @ApiOkResponse({ description: 'Users received' })
   @ApiQuery({ name: 'loginSubstring', type: 'string' })
@@ -81,6 +82,7 @@ export class UsersController {
     return response.send(userData);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOkResponse({ description: 'User received' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
@@ -93,12 +95,14 @@ export class UsersController {
 
   @Get()
   @ApiOkResponse({ description: 'All users received' })
+  @ApiBearerAuth()
   @LogDecorator()
   async findAll(@Res() response: Response) {
     const userData = await this.usersService.findAll();
     return response.send(userData);
   }
 
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOkResponse({ description: 'User updated' })
   @ApiBadRequestResponse({ description: 'Validation error' })
@@ -116,6 +120,7 @@ export class UsersController {
     return response.send(userData);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOkResponse({ description: 'User deleted' })
   @ApiNotFoundResponse({ description: 'Invalid id' })

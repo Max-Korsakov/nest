@@ -108,7 +108,10 @@ export class UsersService {
           isdeleted: false,
         },
       });
-      return user;
+      return {
+        login: user.getDataValue('login'),
+        password: user.getDataValue('password'),
+      };
     } catch (error) {
       this.logger.error(
         `Method: ${this.findOne.name}, arguments:${JSON.stringify(
