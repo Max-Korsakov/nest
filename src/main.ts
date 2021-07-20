@@ -16,6 +16,7 @@ async function bootstrap() {
     .setTitle('Nest CRUD application')
     .setDescription('Node Js mentoring program')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);

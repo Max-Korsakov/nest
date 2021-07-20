@@ -95,6 +95,30 @@ export class UsersService {
     }
   }
 
+  async getUserWithLogin(login: string): Promise<any> {
+    this.logger.log(
+      `Method: ${this.findOne.name} was called with arguments:${JSON.stringify(
+        arguments,
+      )}`,
+    );
+    try {
+      const user = await this.userModel.findOne({
+        where: {
+          login,
+          isdeleted: false,
+        },
+      });
+      return user;
+    } catch (error) {
+      this.logger.error(
+        `Method: ${this.findOne.name}, arguments:${JSON.stringify(
+          arguments,
+        )}, error: ${error.message}`,
+      );
+      throw new HttpException(error, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+  }
+
   async update(
     id: string,
     updateUserDto: UpdateUserDto,

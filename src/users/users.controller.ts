@@ -16,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiInternalServerErrorResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -31,6 +32,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiBearerAuth()
   @ApiCreatedResponse({ description: 'User created', type: CreatedUserRes })
   @ApiBadRequestResponse({ description: 'Validation error' })
   async create(
