@@ -7,9 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  BadRequestException,
-  InternalServerErrorException,
-  NotFoundException,
+  Res,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -18,12 +16,17 @@ import {
   ApiNotFoundResponse,
   ApiInternalServerErrorResponse,
   ApiTags,
+  ApiParam,
+  ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { UsersService } from './users.service';
 import { CreateUserDto, CreatedUserRes } from './dto/create-user.dto';
 import { AddUserToGroup } from './dto/add-to-group.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LogDecorator } from '../utils/loggers/time-logget/timelogger';
 
 @ApiTags('users')
 @Controller('users')
@@ -33,8 +36,14 @@ export class UsersController {
   @Post()
   @ApiCreatedResponse({ description: 'User created', type: CreatedUserRes })
   @ApiBadRequestResponse({ description: 'Validation error' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @ApiBody({ type: [CreateUserDto] })
+  @LogDecorator()
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    @Res() response: Response,
+  ) {
+    const userData = await this.usersService.create(createUserDto);
+    return response.send(userData);
   }
 
   @Post('addgroup')
@@ -43,30 +52,49 @@ export class UsersController {
     type: AddUserToGroup,
   })
   @ApiBadRequestResponse({ description: 'Validation error' })
-  addUserToGroup(@Body() addUserToGroup: AddUserToGroup) {
-    return this.usersService.addUserToGroup(addUserToGroup);
+  @ApiBody({ type: [AddUserToGroup] })
+  @LogDecorator()
+  async addUserToGroup(
+    @Body() addUserToGroup: AddUserToGroup,
+    @Res() response: Response,
+  ) {
+    const resp = await this.usersService.addUserToGroup(addUserToGroup);
+    return response.send(resp);
   }
 
   @Get('suggested')
   @ApiOkResponse({ description: 'Users received' })
-  getSuggested(
+  @ApiQuery({ name: 'loginSubstring', type: 'string' })
+  @ApiQuery({ name: 'limit', type: 'number' })
+  @LogDecorator()
+  async getSuggested(
     @Query('loginSubstring') loginSubstring: string,
     @Query('limit') limit: number,
+    @Res() response: Response,
   ) {
-    return this.usersService.getSuggested(loginSubstring, limit);
+    const userData = await this.usersService.getSuggested(
+      loginSubstring,
+      limit,
+    );
+    return response.send(userData);
   }
 
   @Get(':id')
   @ApiOkResponse({ description: 'User received' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @ApiParam({ name: 'id', type: 'string' })
+  @LogDecorator()
+  async findOne(@Param('id') id: string, @Res() response: Response) {
+    const userData = await this.usersService.findOne(id);
+    return response.send(userData);
   }
 
   @Get()
   @ApiOkResponse({ description: 'All users received' })
-  findAll() {
-    return this.usersService.findAll();
+  @LogDecorator()
+  async findAll(@Res() response: Response) {
+    const userData = await this.usersService.findAll();
+    return response.send(userData);
   }
 
   @Patch(':id')
@@ -74,14 +102,25 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Validation error' })
   @ApiNotFoundResponse({ description: 'Invalid id' })
   @ApiInternalServerErrorResponse({ description: 'Update failed' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiBody({ type: [UpdateUserDto] })
+  @LogDecorator()
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Res() response: Response,
+  ) {
+    const userData = await this.usersService.update(id, updateUserDto);
+    return response.send(userData);
   }
 
   @Delete(':id')
   @ApiOkResponse({ description: 'User deleted' })
   @ApiNotFoundResponse({ description: 'Invalid id' })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  @ApiParam({ name: 'id', type: 'string' })
+  @LogDecorator()
+  async remove(@Param('id') id: string, @Res() response: Response) {
+    const userData = await this.usersService.remove(id);
+    return response.send(userData);
   }
 }

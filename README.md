@@ -2,20 +2,18 @@ lounch application script: npm run start
 
 API - localhost:3000
 
-Task 4.1 done
+Task 5.1 done
 
-- get group by id
-- get all groups
-- create and update groups
-- remove group
-- data stored in Groups table
+- created middlware that log each methos that was invoked with arguments
+
+Task 5.2 done
+- unhandled rejections and uncaught exceptions handled with process.on listeners and logger
 
 
-Task 4.2 done
-- create user_group table, permissions table, group_permissions tables, ad many-to-many
-- if record removed all linked data removes too
+Task 5.3 done
+- every method in controllers has error logger
 
-Task 4.3 done
-- add addUserToGroup method
+Task 5* done
+- created logger that log method time execution. Implemented for UserService 
 
 
