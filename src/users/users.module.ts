@@ -10,5 +10,6 @@ import { groups } from '../groups/entities/group.entity';
   imports: [SequelizeModule.forFeature([users, user_groups, groups])],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
